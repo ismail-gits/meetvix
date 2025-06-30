@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import { OctagonAlert } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { authClient } from "@/lib/auth-client";
@@ -21,7 +19,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Alert, AlertTitle } from "@/components/ui/alert";
+
+import { AlertView } from "@/modules/auth/ui/views/alert-view";
+import { TermsPrivacyView } from "@/modules/auth/ui/views/terms-privacy-view";
+import { AuthRedirectView } from "@/modules/auth/ui/views/auth-redirect-view";
 
 const formSchema = z.object({
   email: z.string().min(1, { message: "Email is required" }).email(),
@@ -114,12 +115,7 @@ export const SignInView = () => {
                     )}
                   />
                 </div>
-                {!!error && (
-                  <Alert className="bg-destructive/10 border-none">
-                    <OctagonAlert className="size-4 !text-destructive" />
-                    <AlertTitle>{error}</AlertTitle>
-                  </Alert>
-                )}
+                {!!error && <AlertView error={error} />}
                 <Button disabled={pending} type="submit" className="w-full">
                   Sign in
                 </Button>
@@ -136,15 +132,11 @@ export const SignInView = () => {
                     Github
                   </Button>
                 </div>
-                <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
-                  <Link
-                    href={"/sign-up"}
-                    className="underline underline-offset-4"
-                  >
-                    Sign up
-                  </Link>
-                </div>
+                <AuthRedirectView
+                  message="Don't have an account?"
+                  label="Sign up"
+                  href="/sign-up"
+                />
               </div>
             </form>
           </Form>
@@ -155,11 +147,7 @@ export const SignInView = () => {
         </CardContent>
       </Card>
 
-      <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
-        By clicking continue, you agree to our{" "}
-        <Link href={"#"}>Terms of service</Link> and{" "}
-        <Link href={"#"}>Privacy</Link>
-      </div>
+      <TermsPrivacyView />
     </div>
   );
 };
