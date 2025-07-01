@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -25,7 +26,6 @@ import { AlertView } from "@/modules/auth/ui/views/alert-view";
 import { TermsPrivacyView } from "@/modules/auth/ui/views/terms-privacy-view";
 import { AuthRedirectView } from "@/modules/auth/ui/views/auth-redirect-view";
 import { AuthLogoView } from "@/modules/auth/ui/views/auth-logo-view";
-import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
