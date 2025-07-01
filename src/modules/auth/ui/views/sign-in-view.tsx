@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +22,7 @@ import {
 import { AlertView } from "@/modules/auth/ui/views/alert-view";
 import { TermsPrivacyView } from "@/modules/auth/ui/views/terms-privacy-view";
 import { AuthRedirectView } from "@/modules/auth/ui/views/auth-redirect-view";
+import { AuthLogoView } from "@/modules/auth/ui/views/auth-logo-view";
 
 const formSchema = z.object({
   email: z.string().min(1, { message: "Email is required" }).email(),
@@ -141,9 +141,7 @@ export const SignInView = () => {
             </form>
           </Form>
 
-          <div className="bg-radial from-green-700 to-green-900 relative hidden md:flex flex-col gap-y-4 items-center justify-center">
-            <Image src={"/logo.svg"} alt="Image" height={100} width={150} />
-          </div>
+          <AuthLogoView />
         </CardContent>
       </Card>
 
