@@ -22,10 +22,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { AlertView } from "@/modules/auth/ui/views/alert-view";
-import { TermsPrivacyView } from "@/modules/auth/ui/views/terms-privacy-view";
-import { AuthRedirectView } from "@/modules/auth/ui/views/auth-redirect-view";
-import { AuthLogoView } from "@/modules/auth/ui/views/auth-logo-view";
+import { AuthAlert } from "../components/auth-alert";
+import { TermsAndPrivacy } from "../components/terms-and-privacy";
+import { AuthRedirect } from "../components/auth-redirect";
+import { AuthLogo } from "../components/auth-logo";
 
 const formSchema = z
   .object({
@@ -205,7 +205,7 @@ export const SignUpView = () => {
                     )}
                   />
                 </div>
-                {!!error && <AlertView error={error} />}
+                {!!error && <AuthAlert error={error} />}
                 <Button disabled={pending} type="submit" className="w-full">
                   Sign up
                 </Button>
@@ -234,7 +234,7 @@ export const SignUpView = () => {
                     <FaGithub className="size-5" />
                   </Button>
                 </div>
-                <AuthRedirectView
+                <AuthRedirect
                   message="Already have an account?"
                   label="Sign in"
                   href="/sign-in"
@@ -243,11 +243,11 @@ export const SignUpView = () => {
             </form>
           </Form>
 
-          <AuthLogoView />
+          <AuthLogo />
         </CardContent>
       </Card>
 
-      <TermsPrivacyView />
+      <TermsAndPrivacy />
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export const AuthLogoView = () => {
+export const AuthLogo = () => {
   return (
     <div className="bg-radial from-sidebar-accent to-sidebar relative hidden md:flex flex-col gap-y-4 items-center justify-center">
       <Image src={"/logo.svg"} alt="Logo" height={120} width={120} />
