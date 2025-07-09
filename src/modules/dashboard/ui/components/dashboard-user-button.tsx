@@ -53,7 +53,7 @@ export const DashboardUserButton = () => {
           asChild
           className="rounded-lg border border-border/10 p-3 w-full flex items-center justify-between bg-white/5 hover:bg-white/10 overflow-hidden cursor-pointer"
         >
-          <div>
+          <button>
             {data.user.image ? (
               <Avatar className="mr-3">
                 <AvatarImage src={data.user.image} alt="Avatar" />
@@ -70,7 +70,7 @@ export const DashboardUserButton = () => {
               <p className="text-xs truncate w-full">{data.user.email}</p>
             </div>
             <ChevronDownIcon className="size-4 shrink-0" />
-          </div>
+          </button>
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader>
