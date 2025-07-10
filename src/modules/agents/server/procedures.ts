@@ -4,6 +4,7 @@ import { agents } from "@/db/schema";
 import { agentsInsertSchema } from "../schemas";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
 export const agentsRouter = createTRPCRouter({
   getMany: protectedProcedure.query(async () => {
@@ -20,11 +21,15 @@ export const agentsRouter = createTRPCRouter({
         .where(eq(agents.id, input.id));
 
       if (!existingAgent) {
-        throw new Error("Agent not found");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: `Agent with ID ${input.id} not found`,
+        });
       }
 
       return existingAgent;
-    }),  create: protectedProcedure
+    }),
+  create: protectedProcedure
     .input(agentsInsertSchema)
     .mutation(async ({ input, ctx }) => {
       const [createdAgent] = await db
