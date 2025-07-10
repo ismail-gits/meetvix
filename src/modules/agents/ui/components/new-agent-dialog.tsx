@@ -5,7 +5,7 @@ import { AgentForm } from "./agent-form";
 
 interface NewAgentDialogProps {
   open: boolean;
-  onOpenChange:  Dispatch<SetStateAction<boolean>>;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
 }
 
 export const NewAgentDialog = ({ open, onOpenChange }: NewAgentDialogProps) => {
@@ -16,7 +16,7 @@ export const NewAgentDialog = ({ open, onOpenChange }: NewAgentDialogProps) => {
       open={open}
       onOpenChange={onOpenChange}
     >
-      <AgentForm 
+      <AgentForm
         onSuccess={() => onOpenChange(false)}
         onCancel={() => onOpenChange(false)}
       />
