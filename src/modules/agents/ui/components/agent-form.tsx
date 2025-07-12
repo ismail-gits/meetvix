@@ -1,4 +1,5 @@
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,14 +16,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
+import { Textarea } from "@/components/ui/textarea";
 import { GeneratedAvatar } from "@/components/generated-avatar";
+import { Button } from "@/components/ui/button";
 
 import { agentsInsertSchema } from "../../schemas";
 import { AgentGetOne } from "../../types";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 interface AgentFormProps {
   onSuccess?: () => void;
@@ -41,7 +40,9 @@ export const AgentForm = ({
   const createAgent = useMutation(
     trpc.agents.create.mutationOptions({
       onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.agents.getMany.queryOptions());
+        await queryClient.invalidateQueries(
+          trpc.agents.getMany.queryOptions({})
+        );
 
         if (initialValues?.id) {
           await queryClient.invalidateQueries(
