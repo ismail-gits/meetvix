@@ -60,7 +60,7 @@ export const AgentsViewError = () => {
   return (
     <ErrorState
       title="Failed to load agents"
-      description="Please try again later"
+      description="Something went wrong"
     />
   );
 };

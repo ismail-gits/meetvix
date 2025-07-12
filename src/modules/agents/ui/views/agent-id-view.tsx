@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 import { VideoIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { useTRPC } from "@/trpc/client";
 import {
@@ -11,15 +12,14 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
+import { useConfirm } from "@/hooks/use-confirm";
+
 import { ErrorState } from "@/components/error-state";
 import { LoadingState } from "@/components/loading-state";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 import { Badge } from "@/components/ui/badge";
 
 import { AgentIdViewHeader } from "../components/agent-id-view-header";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
-import { useConfirm } from "@/hooks/use-confirm";
 import { UpdateAgentDialog } from "../components/update-agent-dialog";
 
 interface AgentIdViewProps {
@@ -126,7 +126,7 @@ export const AgentsIdViewError = () => {
   return (
     <ErrorState
       title="Failed to load agent"
-      description="Please try again later"
+      description="Something went wrong"
     />
   );
 };
