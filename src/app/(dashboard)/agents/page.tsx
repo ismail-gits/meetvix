@@ -1,9 +1,13 @@
 import React, { Suspense } from "react";
 
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getQueryClient, trpc } from "@/trpc/server";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
+import type { SearchParams } from "nuqs";
 import { ErrorBoundary } from "react-error-boundary";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+
+import { getQueryClient, trpc } from "@/trpc/server";
 
 import {
   AgentsView,
@@ -12,9 +16,6 @@ import {
 } from "@/modules/agents/ui/views/agents-view";
 import { AgentsListHeader } from "@/modules/agents/ui/components/agents-list-header";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-import type { SearchParams } from "nuqs";
 import { loadSearchParams } from "@/modules/agents/params";
 
 interface AgentsPageProps {
