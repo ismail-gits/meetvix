@@ -49,7 +49,7 @@ export const AgentForm = ({
         // TODO: Invalidate free tier usage
 
         onSuccess?.();
-        toast.success(isEdit ? "Agent updated" : "Agent created");
+        toast.success("Agent created");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -73,7 +73,7 @@ export const AgentForm = ({
         }
 
         onSuccess?.();
-        toast.success(isEdit ? "Agent updated" : "Agent created");
+        toast.success("Agent updated");
       },
       onError: (error) => {
         toast.error(error.message);

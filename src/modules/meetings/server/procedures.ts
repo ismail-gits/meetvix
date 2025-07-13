@@ -14,6 +14,8 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 
+import { meetingsInsertSchema, meetingsUpdateSchema } from "../schema";
+
 export const meetingsRouter = createTRPCRouter({
   getMany: protectedProcedure
     .input(
@@ -78,10 +80,45 @@ export const meetingsRouter = createTRPCRouter({
       if (!existingMeeting) {
         throw new TRPCError({
           code: "NOT_FOUND",
-          message: `Meeting not found`,
+          message: "Meeting not found",
         });
       }
 
       return existingMeeting;
+    }),
+  create: protectedProcedure
+    .input(meetingsInsertSchema)
+    .mutation(async ({ input, ctx }) => {
+      const [createdMeeting] = await db
+        .insert(meetings)
+        .values({
+          ...input,
+          userId: ctx.auth.user.id,
+        })
+        .returning();
+
+      // TODO: Create stream call, Upsert Stream Users
+
+      return createdMeeting;
+    }),
+  update: protectedProcedure
+    .input(meetingsUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [updatedMeeting] = await db
+        .update(meetings)
+        .set(input)
+        .where(
+          and(eq(meetings.userId, ctx.auth.user.id), eq(meetings.id, input.id))
+        )
+        .returning();
+
+      if (!updatedMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      return updatedMeeting;
     }),
 });
