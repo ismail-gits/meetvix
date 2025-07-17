@@ -8,6 +8,7 @@ import {
   ClockFadingIcon,
   CornerDownRightIcon,
   LoaderIcon,
+  VideoIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import humanizeDuration from "humanize-duration";
@@ -21,7 +22,7 @@ import { MeetingsGetMany } from "../../types";
 
 const statusIconMap = {
   upcoming: ClockArrowDownIcon,
-  active: LoaderIcon,
+  active: VideoIcon,
   completed: CircleCheckIcon,
   processing: LoaderIcon,
   cancelled: CircleXIcon,
