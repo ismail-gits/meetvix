@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -7,6 +8,8 @@ import { z } from "zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTRPC } from "@/trpc/client";
 
+import { CommandSelect } from "@/components/command-select";
+import { GeneratedAvatar } from "@/components/generated-avatar";
 import {
   Form,
   FormControl,
@@ -18,13 +21,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 
 import { meetingsInsertSchema } from "../../schema";
 import { MeetingGetOne } from "../../types";
-import { useState } from "react";
-import { CommandSelect } from "@/components/command-select";
-import { GeneratedAvatar } from "@/components/generated-avatar";
-import { NewAgentDialog } from "@/modules/agents/ui/components/new-agent-dialog";
 
 interface MeetingFormProps {
   onSuccess?: (id?: string) => void;
