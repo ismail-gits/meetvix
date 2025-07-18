@@ -12,7 +12,7 @@ export const CallEnded = () => {
             <p className="text-sm">Summary will appear in a few minutes.</p>
           </div>
           <Button asChild>
-            <Link href={"/meetings"}>Back to meetigns</Link>
+            <Link href={"/meetings"}>Back to meetings</Link>
           </Button>
         </div>
       </div>
