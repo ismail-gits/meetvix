@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDuration(seconds: number) {
+export function formatDuration(seconds: number): string {
   return humanizeDuration(seconds * 1000, {
     largest: 1,
     round: true,
