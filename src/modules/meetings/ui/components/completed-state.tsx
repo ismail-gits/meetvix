@@ -16,6 +16,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { GeneratedAvatar } from "@/components/generated-avatar";
 
+import { Transcript } from "./transcript";
+import { ChatProvider } from "./chat-provider";
 import { MeetingGetOne } from "../../types";
 
 const tabsClassname =
@@ -142,18 +144,10 @@ export const CompletedState = ({ data }: CompletedStateProps) => {
           </div>
         </TabsContent>
         <TabsContent value="transcript">
-          <div className="bg-white rounded-lg border px-4 py-5 h-[500px] flex items-center justify-center">
-            <p className="text-2xl font-semibold">
-              Video transcript coming soon...
-            </p>
-          </div>
+          <Transcript meetingId={data.id} />
         </TabsContent>
         <TabsContent value="chat">
-          <div className="bg-white rounded-lg border px-4 py-5 h-[500px] flex items-center justify-center">
-            <p className="text-2xl font-semibold">
-              Chat with AI coming soon...
-            </p>
-          </div>
+          <ChatProvider meetingId={data.id} />
         </TabsContent>
       </Tabs>
     </div>
