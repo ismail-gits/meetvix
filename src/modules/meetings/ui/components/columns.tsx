@@ -8,11 +8,11 @@ import {
   ClockFadingIcon,
   CornerDownRightIcon,
   LoaderIcon,
+  VideoIcon,
 } from "lucide-react";
 import { format } from "date-fns";
-import humanizeDuration from "humanize-duration";
 
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
 import { GeneratedAvatar } from "@/components/generated-avatar";
@@ -21,7 +21,7 @@ import { MeetingsGetMany } from "../../types";
 
 const statusIconMap = {
   upcoming: ClockArrowDownIcon,
-  active: LoaderIcon,
+  active: VideoIcon,
   completed: CircleCheckIcon,
   processing: LoaderIcon,
   cancelled: CircleXIcon,
@@ -34,14 +34,6 @@ const statusColorMap = {
   processing: "bg-gray-300/20 text-gray-800 border-gray-800/5",
   cancelled: "bg-rose-500/20 text-rose-800 border-rose-800/5",
 };
-
-function formatDuration(seconds: number) {
-  return humanizeDuration(seconds * 1000, {
-    largest: 1,
-    round: true,
-    units: ["h", "m", "s"],
-  });
-}
 
 export const columns: ColumnDef<MeetingsGetMany[number]>[] = [
   {
