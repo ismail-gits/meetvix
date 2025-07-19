@@ -1,11 +1,21 @@
+import JSONL from "jsonl-parse-stringify";
 import { z } from "zod";
-import { and, count, desc, eq, getTableColumns, ilike, sql } from "drizzle-orm";
+import {
+  and,
+  count,
+  desc,
+  eq,
+  getTableColumns,
+  ilike,
+  inArray,
+  sql,
+} from "drizzle-orm";
 
 import { createTRPCRouter, protectedProcedure } from "@/trpc/init";
 import { TRPCError } from "@trpc/server";
 
 import { db } from "@/db";
-import { agents, meetings } from "@/db/schema";
+import { agents, meetings, user } from "@/db/schema";
 
 import {
   DEFAULT_PAGE,
@@ -14,12 +24,12 @@ import {
   MIN_PAGE_SIZE,
 } from "@/constants";
 
-import { meetingsInsertSchema, meetingsUpdateSchema } from "../schema";
-
 import { streamVideo } from "@/lib/stream-video";
 import { generateAvatarUri } from "@/lib/avatar";
 
-import { MeetingStatus } from "../types";
+import { meetingsInsertSchema, meetingsUpdateSchema } from "../schema";
+import { MeetingStatus, StreamTranscriptItem } from "../types";
+import { streamChat } from "@/lib/stream-chat";
 
 export const meetingsRouter = createTRPCRouter({
   getMany: protectedProcedure
@@ -235,6 +245,106 @@ export const meetingsRouter = createTRPCRouter({
       user_id: ctx.auth.user.id,
       exp: expirationTime,
       validity_in_seconds: 3600,
+    });
+
+    return token;
+  }),
+  getTranscript: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [existingMeeting] = await db
+        .select()
+        .from(meetings)
+        .where(
+          and(eq(meetings.id, input.id), eq(meetings.userId, ctx.auth.user.id))
+        );
+
+      if (!existingMeeting) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Meeting not found",
+        });
+      }
+
+      if (!existingMeeting.transcriptUrl) {
+        return [];
+      }
+
+      try {
+        const response = await fetch(existingMeeting.transcriptUrl);
+        const text = await response.text();
+
+        const transcript = JSONL.parse<StreamTranscriptItem>(text);
+
+        const speakerIds = [
+          ...new Set(transcript.map((item) => item.speaker_id)),
+        ];
+
+        const userSpeakers = await db
+          .select()
+          .from(user)
+          .where(inArray(user.id, speakerIds))
+          .then((users) =>
+            users.map((user) => ({
+              ...user,
+              image:
+                user.image ??
+                generateAvatarUri({
+                  variant: "initials",
+                  seed: user.name,
+                }),
+            }))
+          );
+
+        const agentSpeakers = await db
+          .select()
+          .from(agents)
+          .where(inArray(agents.id, speakerIds))
+          .then((agents) =>
+            agents.map((agent) => ({
+              ...agent,
+              image: generateAvatarUri({
+                variant: "botttsNeutral",
+                seed: agent.name,
+              }),
+            }))
+          );
+
+        const speakers = [...userSpeakers, ...agentSpeakers];
+
+        const transcriptWithSpeakers = transcript.map((item) => {
+          const speaker = speakers.find(
+            (speaker) => speaker.id === item.speaker_id
+          );
+
+          return {
+            ...item,
+            user: {
+              name: speaker ? speaker.name : "Unknown",
+              image: speaker
+                ? speaker.image
+                : generateAvatarUri({
+                    variant: "initials",
+                    seed: "Unknown",
+                  }),
+            },
+          };
+        });
+
+        return transcriptWithSpeakers;
+      } catch (error) {
+        console.error("Failed to fetch or parse transcript", {
+          meetingId: input.id,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
+        return [];
+      }
+    }),
+  generateChatToken: protectedProcedure.mutation(async ({ ctx }) => {
+    const token = streamChat.createToken(ctx.auth.user.id);
+    await streamChat.upsertUser({
+      id: ctx.auth.user.id,
+      role: "admin",
     });
 
     return token;
