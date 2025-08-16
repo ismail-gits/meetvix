@@ -45,7 +45,10 @@ export const MeetingIdView = ({ meetingId }: MeetingIdViewProps) => {
           trpc.meetings.getMany.queryOptions({})
         );
 
-        // TODO: Invalidate free tier usage
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
+
         toast.success("Meeting deleted");
         router.push("/meetings");
       },

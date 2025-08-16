@@ -1,8 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { polar, checkout, portal } from "@polar-sh/better-auth";
 
 import { db } from "@/db/index";
 import * as schema from "@/db/schema";
+
+import { polarClient } from "./polar";
 
 if (!process.env.GITHUB_CLIENT_ID) {
   throw new Error("GITHUB_CLIENT_ID environment variable not set");
@@ -35,4 +38,17 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
   },
+  plugins: [
+    polar({
+      client: polarClient,
+      createCustomerOnSignUp: true,
+      use: [
+        checkout({
+          authenticatedUsersOnly: true,
+          successUrl: "/upgrade",
+        }),
+        portal(),
+      ],
+    }),
+  ],
 });
