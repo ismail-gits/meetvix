@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -34,6 +37,7 @@ export const AgentForm = ({
   onCancel,
   initialValues,
 }: AgentFormProps) => {
+  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -46,7 +50,9 @@ export const AgentForm = ({
           trpc.agents.getMany.queryOptions({})
         );
 
-        // TODO: Invalidate free tier usage
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
 
         onSuccess?.();
         toast.success("Agent created");
@@ -54,7 +60,9 @@ export const AgentForm = ({
       onError: (error) => {
         toast.error(error.message);
 
-        // TODO: check if error code is "FORBIDDEN", redirect to "/upgrade"
+        if (error.data?.code === "FORBIDDEN") {
+          router.push("/upgrade");
+        }
       },
     })
   );
@@ -77,8 +85,6 @@ export const AgentForm = ({
       },
       onError: (error) => {
         toast.error(error.message);
-
-        // TODO: check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     })
   );

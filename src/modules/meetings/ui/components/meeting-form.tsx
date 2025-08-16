@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -37,6 +40,7 @@ export const MeetingForm = ({
   onCancel,
   initialValues,
 }: MeetingFormProps) => {
+  const router = useRouter();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
 
@@ -59,7 +63,9 @@ export const MeetingForm = ({
           trpc.meetings.getMany.queryOptions({})
         );
 
-        // TODO: Invalidate free tier usage
+        await queryClient.invalidateQueries(
+          trpc.premium.getFreeUsage.queryOptions()
+        );
 
         onSuccess?.(data.id);
         toast.success("Meeting created");
@@ -67,7 +73,9 @@ export const MeetingForm = ({
       onError: (error) => {
         toast.error(error.message);
 
-        // TODO: check if error code is "FORBIDDEN", redirect to "/upgrade"
+        if (error.data?.code === "FORBIDDEN") {
+          router.push("/upgrade");
+        }
       },
     })
   );
@@ -90,8 +98,6 @@ export const MeetingForm = ({
       },
       onError: (error) => {
         toast.error(error.message);
-
-        // TODO: check if error code is "FORBIDDEN", redirect to "/upgrade"
       },
     })
   );
