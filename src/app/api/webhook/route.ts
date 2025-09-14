@@ -21,9 +21,6 @@ import { streamChat } from "@/lib/stream-chat";
 
 const openAiClient = new OpenAI();
 
-// In-memory set to track processed session_started events
-const processedSessions = new Set<string>();
-
 function verifySignatureWithSDK(body: string, signature: string): boolean {
   return streamVideo.verifyWebhook(body, signature);
 }
@@ -62,22 +59,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
     }
 
-    // Create a unique key for this session
-    const sessionKey = `${meetingId}-${event.call.session?.id || 'default'}`;
-    
-    // Check if we've already processed this session
-    if (processedSessions.has(sessionKey)) {
-      console.log(`Session ${sessionKey} already processed, skipping`);
-      return NextResponse.json({ status: "ok" });
-    }
+    // Get the call to check current participants
+    const call = streamVideo.video.call("default", meetingId);
 
-    // Mark as processed immediately to prevent race conditions
-    processedSessions.add(sessionKey);
+    try {
+      // Check if agent is already connected
+      const callInfo  = await call.get();
+      const agentAlreadyConnected = callInfo.call.session?.participants?.some(
+        participant => participant.user.id === existingMeeting?.agentId
+      );
 
-    // Clean up old entries (prevent memory leak)
-    if (processedSessions.size > 1000) {
-      const entries = Array.from(processedSessions);
-      entries.slice(0, 500).forEach(key => processedSessions.delete(key));
+      if (agentAlreadyConnected) {
+        console.log(`Agent already connected to meeting ${meetingId}`);
+        return NextResponse.json({ status: "agent_already_connected" });
+      }
+    } catch (error) {
+      console.log("Could not check call state, proceeding with connection: " + error);
     }
 
     const [existingMeeting] = await db
@@ -86,18 +83,10 @@ export async function POST(req: NextRequest) {
       .where(and(eq(meetings.id, meetingId), eq(meetings.status, "upcoming")));
 
     if (!existingMeeting) {
-      processedSessions.delete(sessionKey);
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
     }
 
-    // Check if meeting is already active (additional safety check)
-    if (existingMeeting.status !== "upcoming") {
-      console.log(`Meeting ${meetingId} is not in upcoming status, skipping`);
-      processedSessions.delete(sessionKey);
-      return NextResponse.json({ status: "ok" });
-    }
-
-    const updateResult = await db
+    await db
       .update(meetings)
       .set({
         status: "active",
@@ -108,15 +97,7 @@ export async function POST(req: NextRequest) {
           eq(meetings.id, existingMeeting.id),
           eq(meetings.status, "upcoming")
         )
-      )
-      .returning();
-
-    // If no rows were updated, another request already processed this
-    if (updateResult.length === 0) {
-      console.log(`Meeting ${meetingId} already updated by another request`);
-      processedSessions.delete(sessionKey);
-      return NextResponse.json({ status: "ok" });
-    }
+      );
 
     const [existingAgent] = await db
       .select()
@@ -124,21 +105,10 @@ export async function POST(req: NextRequest) {
       .where(eq(agents.id, existingMeeting.agentId));
 
     if (!existingAgent) {
-      // Rollback meeting status
-      await db
-        .update(meetings)
-        .set({ status: "upcoming", startedAt: null })
-        .where(eq(meetings.id, existingMeeting.id));
-      
-      processedSessions.delete(sessionKey);
       return NextResponse.json({ error: "Agent not found" }, { status: 404 });
     }
 
-    const call = streamVideo.video.call("default", meetingId);
-
     try {
-      console.log(`Connecting OpenAI agent for meeting ${meetingId}`);
-      
       const realtimeClient = await streamVideo.video.connectOpenAi({
         call,
         openAiApiKey: process.env.OPENAI_API_KEY!,
@@ -149,8 +119,6 @@ export async function POST(req: NextRequest) {
       realtimeClient.updateSession({
         instructions: existingAgent.instructions,
       });
-      
-      console.log(`Successfully connected OpenAI agent for meeting ${meetingId}`);
     } catch (error) {
       console.error("Failed to connect OpenAI agent:", error);
 
@@ -159,7 +127,6 @@ export async function POST(req: NextRequest) {
         .set({ status: "upcoming", startedAt: null })
         .where(eq(meetings.id, existingMeeting.id));
 
-      processedSessions.delete(sessionKey);
       return NextResponse.json(
         { error: "Failed to initialize AI agent" },
         { status: 500 }
@@ -183,11 +150,6 @@ export async function POST(req: NextRequest) {
     if (!meetingId) {
       return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
     }
-
-    // Clean up processed sessions for this meeting
-    Array.from(processedSessions)
-      .filter(key => key.startsWith(meetingId))
-      .forEach(key => processedSessions.delete(key));
 
     await db
       .update(meetings)
