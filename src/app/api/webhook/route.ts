@@ -59,24 +59,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing meetingId" }, { status: 400 });
     }
 
-    // Get the call to check current participants
-    const call = streamVideo.video.call("default", meetingId);
-
-    try {
-      // Check if agent is already connected
-      const callInfo  = await call.get();
-      const agentAlreadyConnected = callInfo.call.session?.participants?.some(
-        participant => participant.user.id === existingMeeting?.agentId
-      );
-
-      if (agentAlreadyConnected) {
-        console.log(`Agent already connected to meeting ${meetingId}`);
-        return NextResponse.json({ status: "agent_already_connected" });
-      }
-    } catch (error) {
-      console.log("Could not check call state, proceeding with connection: " + error);
-    }
-
     const [existingMeeting] = await db
       .select()
       .from(meetings)
@@ -84,6 +66,23 @@ export async function POST(req: NextRequest) {
 
     if (!existingMeeting) {
       return NextResponse.json({ error: "Meeting not found" }, { status: 404 });
+    }
+
+    // Now check if agent is already connected using the correct agentId
+    const call = streamVideo.video.call("default", meetingId);
+    
+    try {
+      const callInfo = await call.get();
+      const agentAlreadyConnected = callInfo.call.session?.participants?.some(
+        participant => participant.user.id === existingMeeting.agentId
+      );
+      
+      if (agentAlreadyConnected) {
+        console.log(`Agent ${existingMeeting.agentId} already connected to meeting ${meetingId}`);
+        return NextResponse.json({ status: "agent_already_connected" });
+      }
+    } catch (error) {
+      console.log("Could not check call state, proceeding with connection", error);
     }
 
     await db
@@ -99,6 +98,7 @@ export async function POST(req: NextRequest) {
         )
       );
 
+    // Get agent data
     const [existingAgent] = await db
       .select()
       .from(agents)
@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Agent not found" }, { status: 404 });
     }
 
+    // Connect OpenAI agent
     try {
       const realtimeClient = await streamVideo.video.connectOpenAi({
         call,
