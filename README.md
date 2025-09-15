@@ -34,7 +34,6 @@ Meetvix is a next-generation meeting platform that revolutionizes how teams coll
 - **🔄 Workflow Automation**: Inngest-powered background jobs for meeting scheduling, notifications, and follow-ups
 - **🔐 Advanced Authentication**: Better Auth integration with OAuth providers, magic links, and 2FA support
 - **👥 Agent Management**: Complete CRUD operations for AI agents with role-based permissions
-- **📅 Meeting Scheduling**: Advanced scheduling system with calendar integrations and automated reminders
 - **💳 Subscription Management**: Polar-powered billing system with tiered access and usage tracking
 - **📱 Responsive Design**: Optimized for desktop, tablet, and mobile experiences
 
@@ -249,9 +248,9 @@ meetvix/
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript
-- **UI Library**: React 18+
+- **UI Library**: React 19
 - **Styling**: Tailwind CSS
 - **Components**: shadcn/ui
 - **Icons**: Lucide React
@@ -357,7 +356,6 @@ Visit `http://localhost:3000` to see the application.
 - **Analytics**: Track agent performance and user interactions
 
 ### Meeting Management
-- **Scheduling**: Advanced meeting scheduling with calendar integration
 - **Real-time Video**: HD video conferencing with screen sharing
 - **Chat Integration**: Persistent chat with meeting history
 - **Recording**: Automated meeting recording and transcription
@@ -365,16 +363,12 @@ Visit `http://localhost:3000` to see the application.
 
 ### Better Auth Integration
 - **Multiple Providers**: Support for OAuth (GitHub, Google, Discord, etc.)
-- **Magic Links**: Passwordless authentication for seamless user experience
-- **Two-Factor Authentication**: Enhanced security with TOTP support
 - **Session Management**: Secure JWT-based sessions with refresh tokens
 - **User Management**: Complete user profile and preference management
 
 ### Background Automation
 - **Event-Driven Workflows**: Inngest-powered automation for meeting lifecycle
-- **Scheduled Tasks**: Automatic reminders, follow-ups, and analytics processing
 - **Webhook Processing**: Handle external service integrations
-- **Email Notifications**: Automated email campaigns and notifications
 
 ### Subscription Management
 - **Tiered Plans**: Multiple subscription tiers with different feature access
